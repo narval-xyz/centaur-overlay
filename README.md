@@ -88,6 +88,28 @@ Keep credentials out of this repository. Tools request secrets through Centaur's
 secret system; the sandbox only ever sees a placeholder that iron-proxy
 substitutes on the wire.
 
+## Tools
+
+### connect-analytics
+
+Reads the Connect analytics reporting endpoints on the production Armory API
+(`api.narval.xyz`, `GET /v1/management/connect-analytics/*`): summary per dApp,
+active wallets, connection events (grants, denials, revocations), transaction
+events, and a `digest` that structures a period as client -> connection ->
+wallet -> transactions for the agent to narrate. Skill:
+`.agents/skills/connect-analytics/SKILL.md`.
+
+Secret: `CONNECT_ANALYTICS_API_KEY`, sent as `x-api-key`, injected by iron-proxy
+only towards `api.narval.xyz`. It is the Armory admin API key and opens every
+`/v1/management/*` route, not only analytics. The grant must carry a request
+rule restricting it to method `GET` and path `/v1/management/connect-analytics/*`.
+Do not grant it without that rule.
+
+`transactions --include-resolution` and `digest` return the decoded intent per
+transaction (`resolution`, `action`, `whitelisted`) once
+narval-xyz/armory-internal#1060 is deployed. Until then the API ignores the
+parameter and the fields come back `null`; the skill tells the agent to say so.
+
 ## Verify a change landed
 
 From the API pod — tool and workflow discovery:
